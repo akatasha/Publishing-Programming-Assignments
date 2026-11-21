@@ -3,8 +3,7 @@
    --------------------------------------------------------------------------
    Contents
      1. Shared helpers (validation, formatting, result display)
-     2. Sidebar navigation (hash based, no page reloads)
-     2b. Light / dark theme toggle
+     2. View navigation (hash based, no page reloads)
      3. Assignment 1 - Conversion calculator
      4. Assignment 2 - Income tax calculator
      5. Assignment 3 - Factorial (while), Sum (do...while), Average (for)
@@ -134,7 +133,7 @@
   }
 
   /* ======================================================================
-     2. SIDEBAR NAVIGATION
+     2. VIEW NAVIGATION
 
      Every assignment lives in its own <section class="view"> inside the page.
      Switching views only toggles a CSS class, so the browser never reloads.
@@ -143,9 +142,8 @@
      ====================================================================== */
 
   var VIEW_IDS = ['home', 'assignment-1', 'assignment-2', 'assignment-3', 'assignment-4'];
-  var MOBILE_BREAKPOINT = 900;
 
-  /** Shows one view and highlights its matching sidebar link. */
+  /** Shows one view. */
   function showView(requestedId) {
     // Unknown or empty hash falls back to the homepage.
     var targetId = VIEW_IDS.indexOf(requestedId) !== -1 ? requestedId : 'home';
@@ -157,19 +155,7 @@
       }
     });
 
-    var links = document.querySelectorAll('.nav-link');
-    Array.prototype.forEach.call(links, function (link) {
-      var isActive = link.getAttribute('data-view') === targetId;
-      link.classList.toggle('is-active', isActive);
-      if (isActive) {
-        link.setAttribute('aria-current', 'page');
-      } else {
-        link.removeAttribute('aria-current');
-      }
-    });
-
     window.scrollTo(0, 0);
-    closeNav();
   }
 
   /** Reads the view id out of the current URL hash. */
@@ -177,155 +163,13 @@
     return window.location.hash.replace(/^#/, '');
   }
 
-  function openNav() {
-    document.body.classList.add('nav-open');
-    document.getElementById('backdrop').hidden = false;
-    var toggle = document.getElementById('menuToggle');
-    toggle.setAttribute('aria-expanded', 'true');
-    toggle.setAttribute('aria-label', 'Close navigation menu');
-  }
-
-  function closeNav() {
-    document.body.classList.remove('nav-open');
-    var backdrop = document.getElementById('backdrop');
-    if (backdrop) {
-      backdrop.hidden = true;
-    }
-    var toggle = document.getElementById('menuToggle');
-    if (toggle) {
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.setAttribute('aria-label', 'Open navigation menu');
-    }
-  }
-
   function setUpNavigation() {
-    // Respond to hash changes: sidebar clicks, home cards, and the back button.
     window.addEventListener('hashchange', function () {
       showView(viewIdFromHash());
     });
 
-    // Clicking the link of the view you are already on does not fire
-    // hashchange, so close the mobile drawer here as well.
-    var links = document.querySelectorAll('.nav-link');
-    Array.prototype.forEach.call(links, function (link) {
-      link.addEventListener('click', closeNav);
-    });
-
-    document.getElementById('menuToggle').addEventListener('click', function () {
-      if (document.body.classList.contains('nav-open')) {
-        closeNav();
-      } else {
-        openNav();
-      }
-    });
-
-    document.getElementById('backdrop').addEventListener('click', closeNav);
-
-    document.addEventListener('keydown', function (event) {
-      if (event.key === 'Escape') {
-        closeNav();
-      }
-    });
-
-    // Never leave the drawer state hanging when resizing up to desktop.
-    window.addEventListener('resize', function () {
-      if (window.innerWidth > MOBILE_BREAKPOINT) {
-        closeNav();
-      }
-    });
-
     // Show the correct view on first load.
     showView(viewIdFromHash());
-  }
-
-  /* ======================================================================
-     2b. LIGHT / DARK THEME
-
-     The theme is stored as a data-theme attribute on <html>; css/style.css
-     defines one palette per value. A small bootstrap script in index.html
-     applies the stored theme before the first paint, and the code here keeps
-     the toggle button in step and saves the visitor's choice.
-     ====================================================================== */
-
-  var THEME_KEY = 'jsActivities.theme';
-  var DARK = 'dark';
-  var LIGHT = 'light';
-
-  /** Reads the saved choice. Wrapped because localStorage can throw. */
-  function readSavedTheme() {
-    try {
-      return localStorage.getItem(THEME_KEY);
-    } catch (error) {
-      return null;   // private browsing, or storage disabled
-    }
-  }
-
-  function saveTheme(theme) {
-    try {
-      localStorage.setItem(THEME_KEY, theme);
-    } catch (error) {
-      /* Saving is a nicety - the site still works without it. */
-    }
-  }
-
-  /** True when the operating system is set to dark mode. */
-  function systemPrefersDark() {
-    return !!(window.matchMedia &&
-              window.matchMedia('(prefers-color-scheme: dark)').matches);
-  }
-
-  /** The theme currently shown on screen. */
-  function currentTheme() {
-    return document.documentElement.getAttribute('data-theme') === DARK ? DARK : LIGHT;
-  }
-
-  /** Applies a theme and updates the toggle button to match. */
-  function applyTheme(theme) {
-    document.documentElement.setAttribute('data-theme', theme);
-
-    var icon = document.getElementById('themeIcon');
-    var label = document.getElementById('themeLabel');
-    var isDark = theme === DARK;
-
-    // The button describes what the next click will do.
-    if (icon) {
-      icon.innerHTML = isDark ? '&#9728;' : '&#9790;';   // sun : moon
-    }
-    if (label) {
-      label.textContent = isDark ? 'Light mode' : 'Dark mode';
-    }
-  }
-
-  function setUpThemeToggle() {
-    // The bootstrap in index.html already set the attribute; this syncs the
-    // button text with it (and covers the case where that script was skipped).
-    var saved = readSavedTheme();
-    applyTheme(saved === LIGHT || saved === DARK
-      ? saved
-      : (systemPrefersDark() ? DARK : LIGHT));
-
-    document.getElementById('themeToggle').addEventListener('click', function () {
-      var next = currentTheme() === DARK ? LIGHT : DARK;
-      applyTheme(next);
-      saveTheme(next);
-    });
-
-    // Follow the operating system while the visitor has not chosen for
-    // themselves. Once they click the toggle, their choice sticks.
-    if (window.matchMedia) {
-      var query = window.matchMedia('(prefers-color-scheme: dark)');
-      var onSystemChange = function (event) {
-        if (!readSavedTheme()) {
-          applyTheme(event.matches ? DARK : LIGHT);
-        }
-      };
-
-      if (query.addEventListener) {
-        query.addEventListener('change', onSystemChange);
-      } else if (query.addListener) {
-        query.addListener(onSystemChange);   // older browsers
-      }
-    }
   }
 
   /* ======================================================================
@@ -711,7 +555,6 @@
      ====================================================================== */
 
   function init() {
-    setUpThemeToggle();
     setUpNavigation();
     setUpConversionCalculator();
     setUpTaxCalculator();
