@@ -287,11 +287,112 @@ select {
 
 .hint:empty { display: none; }
 
-/* Two inputs side by side (payroll rate + hours) */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Related fields laid out side by side. */
 .field-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16px;
+}
+
+.pay-fields { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+.table-scroll {
+  width: 100%;
+  margin: 16px 0 20px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.payroll-table {
+  width: 100%;
+  min-width: 760px;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.payroll-table th,
+.payroll-table td {
+  padding: 10px 12px;
+  text-align: left;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--summary-line);
+}
+
+.payroll-table th {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.payroll-table td { font-variant-numeric: tabular-nums; }
+
+.payroll-table tbody tr:last-child td { border-bottom: none; }
+
+.payroll-table .table-empty {
+  padding: 16px;
+  color: var(--muted);
+  text-align: center;
+  font-variant-numeric: normal;
+}
+
+.tax-bracket-table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.tax-bracket-table th,
+.tax-bracket-table td {
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--summary-line);
+}
+
+.tax-bracket-table th {
+  background: var(--accent-soft);
+  color: var(--accent-text);
+  font-weight: 700;
+}
+
+.tax-bracket-table tbody tr:last-child td { border-bottom: none; }
+
+.tax-bracket-table td:nth-last-child(-n + 2) {
+  text-align: right;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.delete-row {
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+}
+
+.delete-row .field { margin-bottom: 0; }
+
+.btn.btn--secondary {
+  color: var(--accent-hover);
+  background: var(--accent-soft);
+  border: 1px solid var(--border);
+}
+
+.btn.btn--secondary:hover {
+  color: var(--on-accent);
+  background: var(--accent-hover);
 }
 
 /* ---------- Button ---------- */
@@ -391,6 +492,8 @@ select {
 
 .summary td { text-align: right; font-variant-numeric: tabular-nums; }
 
+.summary.tax-result-table th { text-align: right; }
+
 .summary tr:last-child th,
 .summary tr:last-child td {
   border-bottom: none;
@@ -418,6 +521,8 @@ select {
   .field-row { grid-template-columns: 1fr; gap: 0; }
 
   .field-row .field { margin-bottom: 16px; }
+
+  .delete-row .field { margin-bottom: 16px; }
 
   .btn { width: 100%; }
 }
