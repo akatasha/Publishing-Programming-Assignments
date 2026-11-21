@@ -275,22 +275,18 @@
   /* ======================================================================
      4. ASSIGNMENT 2 - INCOME TAX CALCULATOR
 
-     Philippine graduated income tax rates on annual taxable income,
-     effective January 1, 2023 (TRAIN Law, RA 10963).
-
      Each bracket means: for income above `over`, the tax is
      `baseTax` plus `rate` of the amount in excess of `over`.
-     The brackets are listed from lowest to highest - edit this table to
-     change the rates without touching any other code.
+     The bracket values match the Assignment 2 tax table.
      ====================================================================== */
 
   var TAX_BRACKETS = [
     { over: 0,         baseTax: 0,         rate: 0.00 },   // up to 250,000 is exempt
-    { over: 250000,    baseTax: 0,         rate: 0.15 },
-    { over: 400000,    baseTax: 22500,     rate: 0.20 },
-    { over: 800000,    baseTax: 102500,    rate: 0.25 },
-    { over: 2000000,   baseTax: 402500,    rate: 0.30 },
-    { over: 8000000,   baseTax: 2202500,   rate: 0.35 }
+    { over: 250000,    baseTax: 0,         rate: 0.20 },
+    { over: 400000,    baseTax: 30000,     rate: 0.25 },
+    { over: 800000,    baseTax: 130000,    rate: 0.30 },
+    { over: 2000000,   baseTax: 490000,    rate: 0.32 },
+    { over: 8000000,   baseTax: 2410000,   rate: 0.35 }
   ];
 
   /**
@@ -324,10 +320,10 @@
 
       showResult(panel,
         '<span class="result__label">Income Tax Due</span>' +
-        '<table class="summary">' +
+        '<table class="summary tax-result-table">' +
+          '<thead><tr><th scope="col">Taxable Income</th><th scope="col">Income Tax</th></tr></thead>' +
           '<tbody>' +
-            '<tr><th>Taxable annual income</th><td>' + formatPeso(input.value) + '</td></tr>' +
-            '<tr><th>Income tax</th><td>' + formatPeso(tax) + '</td></tr>' +
+            '<tr><td>' + formatPeso(input.value) + '</td><td>' + formatPeso(tax) + '</td></tr>' +
           '</tbody>' +
         '</table>'
       );
@@ -494,16 +490,41 @@
      6. ASSIGNMENT 4 - SIMPLE PAYROLL
      ====================================================================== */
 
-  /** Gross Salary = Hourly Rate x Hours Worked */
-  function computeGrossSalary(hourlyRate, hoursWorked) {
-    return hourlyRate * hoursWorked;
+  /** Gross Pay = Days Worked x Daily Rate. */
+  function computeGrossPay(daysWorked, dailyRate) {
+    return daysWorked * dailyRate;
   }
 
   function setUpPayrollCalculator() {
     var nameInput = document.getElementById('pay-name');
+    var daysInput = document.getElementById('pay-days');
     var rateInput = document.getElementById('pay-rate');
-    var hoursInput = document.getElementById('pay-hours');
+    var deductionInput = document.getElementById('pay-deduction');
     var panel = document.getElementById('pay-result');
+    var rows = document.getElementById('payroll-rows');
+    var employees = [];
+
+    function renderPayroll() {
+      if (employees.length === 0) {
+        rows.innerHTML = '<tr><td class="table-empty" colspan="7">No employees in the payroll list.</td></tr>';
+        return;
+      }
+
+      rows.innerHTML = employees.map(function (employee, index) {
+        var grossPay = computeGrossPay(employee.daysWorked, employee.dailyRate);
+        var netPay = grossPay - employee.deduction;
+
+        return '<tr>' +
+          '<td>' + (index + 1) + '</td>' +
+          '<td>' + escapeHtml(employee.name) + '</td>' +
+          '<td>' + formatEntered(employee.daysWorked) + '</td>' +
+          '<td>' + formatPeso(employee.dailyRate) + '</td>' +
+          '<td>' + formatPeso(grossPay) + '</td>' +
+          '<td>' + formatPeso(employee.deduction) + '</td>' +
+          '<td>' + formatPeso(netPay) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
 
     document.getElementById('pay-btn').addEventListener('click', function () {
       var name = nameInput.value.trim();
@@ -513,40 +534,77 @@
         return;
       }
 
-      var rate = readNumber(rateInput, { label: 'Hourly rate', min: 0 });
+      var days = readNumber(daysInput, { label: 'Days worked', min: 0 });
+      if (!days.ok) {
+        showError(panel, fieldError('Days worked', days.message));
+        return;
+      }
+
+      var rate = readNumber(rateInput, { label: 'Daily rate', min: 0 });
       if (!rate.ok) {
-        showError(panel, fieldError('Hourly rate', rate.message));
+        showError(panel, fieldError('Daily rate', rate.message));
         return;
       }
 
-      var hours = readNumber(hoursInput, { label: 'Hours worked', min: 0 });
-      if (!hours.ok) {
-        showError(panel, fieldError('Hours worked', hours.message));
+      var deduction = readNumber(deductionInput, { label: 'Deduction amount', min: 0 });
+      if (!deduction.ok) {
+        showError(panel, fieldError('Deduction amount', deduction.message));
         return;
       }
 
-      var grossSalary = computeGrossSalary(rate.value, hours.value);
+      var grossPay = computeGrossPay(days.value, rate.value);
 
-      showResult(panel,
-        '<span class="result__label">Payroll Summary</span>' +
-        '<table class="summary">' +
-          '<tbody>' +
-            '<tr><th>Employee name</th><td>' + escapeHtml(name) + '</td></tr>' +
-            '<tr><th>Hourly rate</th><td>' + formatPeso(rate.value) + '</td></tr>' +
-            '<tr><th>Hours worked</th><td>' + formatEntered(hours.value) + '</td></tr>' +
-            '<tr><th>Gross salary</th><td>' + formatPeso(grossSalary) + '</td></tr>' +
-          '</tbody>' +
-        '</table>'
-      );
+      employees.push({
+        name: name,
+        daysWorked: days.value,
+        dailyRate: rate.value,
+        deduction: deduction.value
+      });
+      renderPayroll();
+      showResult(panel, resultBlock('Payroll List', escapeHtml(name) + ' added.'));
+      nameInput.value = '';
+      daysInput.value = '';
+      rateInput.value = '';
+      deductionInput.value = '';
+      nameInput.focus();
     });
 
-    // Enter key support on every payroll field.
-    [nameInput, rateInput, hoursInput].forEach(function (field) {
+    var deleteInput = document.getElementById('pay-delete-line');
+    document.getElementById('pay-delete-btn').addEventListener('click', function () {
+      var line = readNumber(deleteInput, {
+        label: 'Line number',
+        min: 1,
+        max: employees.length,
+        integer: true
+      });
+
+      if (!line.ok) {
+        showError(panel, employees.length === 0
+          ? 'There are no employees to delete.'
+          : fieldError('Line number', line.message));
+        return;
+      }
+
+      var removed = employees.splice(line.value - 1, 1)[0];
+      renderPayroll();
+      showResult(panel, resultBlock('Payroll List', escapeHtml(removed.name) + ' deleted.'));
+      deleteInput.value = '';
+      deleteInput.focus();
+    });
+
+    // Enter key support for the payroll form and line-number deletion.
+    [nameInput, daysInput, rateInput, deductionInput].forEach(function (field) {
       field.addEventListener('keydown', function (event) {
         if (event.key === 'Enter') {
           document.getElementById('pay-btn').click();
         }
       });
+    });
+
+    deleteInput.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter') {
+        document.getElementById('pay-delete-btn').click();
+      }
     });
   }
 
@@ -574,7 +632,7 @@
     factorialWhile: factorialWhile,
     sumFirstNDoWhile: sumFirstNDoWhile,
     averageFirstNForLoop: averageFirstNForLoop,
-    computeGrossSalary: computeGrossSalary,
+    computeGrossPay: computeGrossPay,
     conversions: CONVERSIONS,
     taxBrackets: TAX_BRACKETS
   };
