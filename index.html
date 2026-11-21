@@ -5,77 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>JavaScript Programming Activities</title>
   <meta name="description" content="Four interactive JavaScript programming activities: a conversion calculator, an income tax calculator, loop-based math calculators, and a simple payroll calculator.">
-  <meta name="color-scheme" content="light dark">
+  <meta name="color-scheme" content="light">
   <!-- Relative path so the stylesheet also loads on GitHub Pages -->
   <link rel="stylesheet" href="css/style.css">
-  <!--
-    Theme bootstrap. This tiny script has to run before the page is painted,
-    otherwise a visitor who picked dark mode would see a white flash first.
-    All the other JavaScript lives in js/script.js.
-  -->
-  <script>
-    (function () {
-      var saved = null;
-      try { saved = localStorage.getItem('jsActivities.theme'); } catch (e) {}
-      var prefersDark = window.matchMedia &&
-                        window.matchMedia('(prefers-color-scheme: dark)').matches;
-      var theme = (saved === 'light' || saved === 'dark') ? saved
-                                                          : (prefersDark ? 'dark' : 'light');
-      document.documentElement.setAttribute('data-theme', theme);
-    }());
-  </script>
 </head>
 <body>
-
-  <!-- Hamburger button: visible on small screens only -->
-  <button class="menu-toggle" id="menuToggle" type="button" aria-controls="sidebar" aria-expanded="false" aria-label="Open navigation menu">
-    <span class="menu-toggle__bars" aria-hidden="true"></span>
-  </button>
-
-  <!-- Dim layer shown behind the sidebar drawer on mobile -->
-  <div class="backdrop" id="backdrop" hidden></div>
-
-  <!-- ===================== FIXED SIDEBAR NAVIGATION ===================== -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar__brand">
-      <span class="sidebar__logo" aria-hidden="true">JS</span>
-      <span class="sidebar__title">Personal Website<br>Project-Devera</span>
-    </div>
-
-    <nav class="sidebar__nav" aria-label="Main navigation">
-      <ul>
-        <li><a class="nav-link" href="#home" data-view="home"><span class="nav-link__num" aria-hidden="true">&#9679;</span> Home</a></li>
-        <li><a class="nav-link" href="#assignment-1" data-view="assignment-1"><span class="nav-link__num" aria-hidden="true">1</span> Conversion Calculator</a></li>
-        <li><a class="nav-link" href="#assignment-2" data-view="assignment-2"><span class="nav-link__num" aria-hidden="true">2</span> Income Tax Calculator</a></li>
-        <li><a class="nav-link" href="#assignment-3" data-view="assignment-3"><span class="nav-link__num" aria-hidden="true">3</span> Factorial, Sum &amp; Average</a></li>
-        <li><a class="nav-link" href="#assignment-4" data-view="assignment-4"><span class="nav-link__num" aria-hidden="true">4</span> Simple Payroll</a></li>
-      </ul>
-    </nav>
-
-    <div class="sidebar__footer">
-      <!-- Light / dark mode switch. The label says what clicking will do. -->
-      <button class="theme-toggle" id="themeToggle" type="button" title="Switch between light and dark mode">
-        <span class="theme-toggle__icon" id="themeIcon" aria-hidden="true">&#9790;</span>
-        <span id="themeLabel">Dark mode</span>
-      </button>
-      <p class="sidebar__credit">By: Kieffer Lance A. Devera</p>
-    </div>
-  </aside>
 
   <!-- ===================== MAIN CONTENT AREA ===================== -->
   <main class="content" id="content">
     <div class="container">
-
       <!-- ---------- HOME ---------- -->
       <section class="view" id="home" aria-labelledby="home-heading">
         <header class="page-head">
-          <h1 id="home-heading">Personal Website Project</h1>
+          <h1 id="home-heading">Programming Activities</h1>
           <p class="lede">
-            Hi I am Kieffer Lance A. Devera, welcome to my personal website project with JavaScript, HTML, and CSS. This website contains 
-            four programming assignments that demonstrate basic programming concepts through simple and interactive 
-            programs. These include unit conversion, income tax calculation, factorial and natural number calculations 
-            using loops, and a simple payroll system. Explore each assignment using the sidebar menu and try out the 
-            different programs.
+            Welcome! I’m Atasha Kristine P. Andacao, and this is my personal website showcasing my JavaScript programming activities using HTML, CSS, and JavaScript. It features four programming assignments designed to apply and demonstrate fundamental programming concepts through interactive applications. The projects include a unit conversion calculator, an income tax calculator, factorial and natural number computations using loops, and a basic payroll system. Feel free to explore each assignment through the cards provided and experience how each program works.
           </p>
         </header>
 
